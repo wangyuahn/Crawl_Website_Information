@@ -1,16 +1,38 @@
-# è¿™æ˜¯ä¸€ä¸ªç¤ºä¾‹ Python è„šæœ¬ã€‚
-
-# æŒ‰ Shift+F10 æ‰§è¡Œæˆ–å°†å…¶æ›¿æ¢ä¸ºæ‚¨çš„ä»£ç ã€‚
-# æŒ‰ åŒå‡» Shift åœ¨æ‰€æœ‰åœ°æ–¹æœç´¢ç±»ã€æ–‡ä»¶ã€å·¥å…·çª—å£ã€æ“ä½œå’Œè®¾ç½®ã€‚
-
-
-def print_hi(name):
-    # åœ¨ä¸‹é¢çš„ä»£ç è¡Œä¸­ä½¿ç”¨æ–­ç‚¹æ¥è°ƒè¯•è„šæœ¬ã€‚
-    print(f'Hi, {name}')  # æŒ‰ Ctrl+F8 åˆ‡æ¢æ–­ç‚¹ã€‚
+#encoding=gbk
+import requests
+from bs4 import BeautifulSoup
 
 
-# æŒ‰è£…è®¢åŒºåŸŸä¸­çš„ç»¿è‰²æŒ‰é’®ä»¥è¿è¡Œè„šæœ¬ã€‚
-if __name__ == '__main__':
-    print_hi('PyCharm')
+# ¶¨ÒåÒªÅÀÈ¡µÄURL
+url = input("ÄãÏëÅÀÈ¡µÄÍøÕ¾£º")
 
-# è®¿é—® https://www.jetbrains.com/help/pycharm/ è·å– PyCharm å¸®åŠ©
+original_string = url
+prefix = "http://"
+
+if "http://" in url or "https://" in url:
+    print(f"url:{url}")
+else:
+    # Ê¹ÓÃ°Ù·ÖºÅ¸ñÊ½»¯
+    url = "%s%s" % (prefix, original_string)
+    print(f"url:{url}")
+
+# ·¢ËÍHTTP GETÇëÇó
+response = requests.get(url)
+
+# ¼ì²éÇëÇóÊÇ·ñ³É¹¦
+if response.status_code == 200:
+    # ½âÎöHTMLÄÚÈİ
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # ´òÓ¡ÍøÒ³±êÌâ
+    title = soup.title.string
+    print(f"ÍøÒ³±êÌâ: {title}")
+
+    # ÌáÈ¡ËùÓĞÁ´½Ó
+    links = soup.find_all('a')
+    for link in links:
+        href = link.get('href')
+        text = link.string
+        print(f"Á´½Ó: {href} - ÎÄ±¾: {text}")
+else:
+    print(f"ÇëÇóÊ§°Ü£¬×´Ì¬Âë: {response.status_code}")
