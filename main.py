@@ -2,6 +2,9 @@
 import requests
 from bs4 import BeautifulSoup
 
+"""diss LightingXuan，
+凭什么他爸妈给他买游戏！！！"""
+
 #blog.sufunspace.org
 
 while True:
