@@ -2,6 +2,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+#blog.sufunspace.org
+
 while True:
     # 定义要爬取的URL
     url = input("你想爬取的网站：")
