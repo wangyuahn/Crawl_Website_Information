@@ -1,43 +1,77 @@
-#encoding=gbk
+# -*- coding: gbk -*-
 import requests
 from bs4 import BeautifulSoup
+import tkinter as tk
+from tkinter import messagebox, scrolledtext
 
-"""diss LightingXuan，
-凭什么他爸妈给他买游戏！！！"""
 
-#blog.sufunspace.org
-
-while True:
-    # 定义要爬取的URL
-    url = input("你想爬取的网站：")
-
+def fetch_data():
+    url = entry_url.get()
     original_string = url
     prefix = "http://"
 
-    if "http://" in url or "https://" in url:
-        print(f"url:{url}")
-    else:
-        # 使用百分号格式化
-        url = "%s%s" % (prefix, original_string)
-        print(f"url:{url}")
+    # Auto-complete URL if needed
+    if "http://" not in url and "https://" not in url:
+        url = f"{prefix}{original_string}"
 
-    # 发送HTTP GET请求
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, "html.parser")
 
-    # 检查请求是否成功
-    if response.status_code == 200:
-        # 解析HTML内容
-        soup = BeautifulSoup(response.text, 'html.parser')
+            # Page title
+            title = soup.title.string if soup.title else "No title"
+            result_text.insert(tk.END, f"Page Title: {title}\n\n")
 
-        # 打印网页标题
-        title = soup.title.string
-        print(f"网页标题: {title}")
+            # Extract links
+            result_text.insert(tk.END, "Links:\n")
+            links = soup.find_all("a")
+            for link in links:
+                href = link.get("href")
+                text = link.string
+                result_text.insert(tk.END, f"Link: {href} - Text: {text}\n")
 
-        # 提取所有链接
-        links = soup.find_all('a')
-        for link in links:
-            href = link.get('href')
-            text = link.string
-            print(f"链接: {href} - 文本: {text}")
-    else:
-        print(f"请求失败，状态码: {response.status_code}")
+            # Extract images
+            result_text.insert(tk.END, "\nImage Links:\n")
+            images = soup.find_all("img")
+            for img in images:
+                img_src = img.get("src")
+                result_text.insert(tk.END, f"Image Link: {img_src}\n")
+
+            # Extract metadata
+            result_text.insert(tk.END, "\nMetadata:\n")
+            metas = soup.find_all("meta")
+            for meta in metas:
+                meta_name = meta.get("name") or meta.get("property")
+                meta_content = meta.get("content")
+                if meta_name and meta_content:
+                    result_text.insert(tk.END, f"{meta_name}: {meta_content}\n")
+        else:
+            messagebox.showerror(
+                "Error", f"Request failed with status code: {response.status_code}"
+            )
+    except Exception as e:
+        messagebox.showerror("Error", f"Request failed: {str(e)}")
+
+
+# GUI setup
+root = tk.Tk()
+root.title("Web Scraping Tool")
+
+# URL input
+frame_top = tk.Frame(root)
+frame_top.pack(pady=10)
+tk.Label(frame_top, text="Enter the website URL:").pack(side=tk.LEFT)
+entry_url = tk.Entry(frame_top, width=50)
+entry_url.pack(side=tk.LEFT, padx=5)
+
+# Scrape button
+btn_fetch = tk.Button(frame_top, text="Scrape", command=fetch_data)
+btn_fetch.pack(side=tk.LEFT, padx=5)
+
+# Display results
+result_text = scrolledtext.ScrolledText(root, width=80, height=30)
+result_text.pack(padx=10, pady=10)
+
+# Run main loop
+root.mainloop()
