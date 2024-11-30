@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import tkinter as tk
 from tkinter import messagebox, scrolledtext
 
-
+"""我这辈子费了"""
 def fetch_data():
     url = entry_url.get()
     original_string = url
